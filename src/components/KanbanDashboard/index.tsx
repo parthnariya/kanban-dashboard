@@ -36,14 +36,14 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
   const dispatch = useAppDispatch()
 
   const onDragEnd = (result: DropResult) => {
+    
     const { draggableId, source, destination } = result;
     if (!destination) return;
 
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
-    )
-      return;
+    )return;
 
     const updatedCards: ICard[] = cards.map((card) => {
       if (card.id === draggableId) {
@@ -54,7 +54,6 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
         };
       } else return card;
     });
-
     const sourceColumn: IColumn = columns.find(
       (column) => column.id === source.droppableId
     ) as IColumn;
@@ -81,7 +80,35 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
 
       dispatch(setColumns(updatedColumns))
       dispatch(setCards(updatedCards))
+
+      return
     }
+
+    // moving cards from one column to another
+    const sourceCardsIds = [...sourceColumn.cardsIds]
+    sourceCardsIds.splice(source.index,1)
+
+    const newSourceColumn: IColumn = {
+      ...sourceColumn,
+      cardsIds:sourceCardsIds
+    }
+
+    const destinationCardsIds = [...destinationColumn.cardsIds]
+
+    const newDestinationColumn: IColumn = {
+      ...destinationColumn,
+      cardsIds:destinationCardsIds
+    }
+
+    const updatedColumns:IColumn[] = columns.map(column => {
+      if(column.id === newDestinationColumn.id) return newDestinationColumn;
+      if(column.id === newSourceColumn.id) return newSourceColumn;
+      else return column
+    })
+
+    dispatch(setColumns(updatedColumns))
+    dispatch(setCards(updatedCards))
+
   };
   return (
     <>
@@ -105,7 +132,7 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
           <DragDropContext onDragEnd={onDragEnd}>
             {columns.map((column, index) => {
               const cardsArray: ICard[] = [];
-
+              console.log(cardsArray)
               column.cardsIds.forEach((cardId) => {
                 const foundedCard = cards.find((card) => card.id === cardId);
                 if (foundedCard) cardsArray.push(foundedCard);

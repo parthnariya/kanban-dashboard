@@ -10,6 +10,7 @@ interface CardProps {
   index: number;
 }
 const Card: React.FC<CardProps> = ({ card, index }) => {
+  
   const theme = useContext(ThemeContext);
   const [backgroundColor, setBackgroundColor] = useState<string>(
     theme.colors.primary
