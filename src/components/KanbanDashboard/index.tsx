@@ -6,13 +6,13 @@ import {
   TitleAndSwitch,
 } from "./style";
 import Switch from "react-switch";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ThemeContext } from "styled-components";
 import SunIcon from "../../assets/sun.png";
 import MoonIcon from "../../assets/moon.png";
 import mockCards from "../../data/cards";
 import mockColumns from "../../data/columns";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
+// import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import ICard from "../../interfaces/ICard";
 import Column from "../Column";
 import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
@@ -24,92 +24,82 @@ import { setCards } from "../../store/slices/card.slice";
 interface KanbanDashboardProps {
   toggleTheme: () => void;
 }
+interface ColumnTargetType {
+  cardId: string;
+  columnStatus: IStatus;
+}
 
 const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
   const { title, colors } = useContext(ThemeContext);
   const theme = useContext(ThemeContext);
-  // const cards = mockCards;
-  // const columns = mockColumns;
+
+  const [target, setTarget] = useState<ColumnTargetType>();
+
   const { cards } = useAppSelector((state) => state.cards);
   const { columns } = useAppSelector((state) => state.columns);
 
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
+  // const cards = mockCards;
+  // const columns = mockColumns;
 
-  const onDragEnd = (result: DropResult) => {
-    
-    const { draggableId, source, destination } = result;
-    if (!destination) return;
+  const handleDragEnter = (cardId: string, columnStatus: IStatus) => {
+    setTarget({
+      cardId,
+      columnStatus,
+    });
+  };
+  const handleDragEnd = (cardId: string, columnStatus: IStatus) => {
+    if (!target) return;
+    const sourceCard = cards.find((item) => item.id === cardId);
+    const sourceColumn: IColumn = columns.find(
+      (column) => column.id === columnStatus
+    ) as IColumn;
+    // console.log(sourceColumn,sourceCard)
+    const targetCard = cards.find((item) => item.id === target?.cardId);
+    const targetColumn: IColumn = columns.find(
+      (item) => item.id === target?.columnStatus
+    ) as IColumn;
 
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    )return;
-
-    const updatedCards: ICard[] = cards.map((card) => {
-      if (card.id === draggableId) {
-        const status: IStatus = destination.droppableId as IStatus;
+    const updatedCards: ICard[] = cards.map((item) => {
+      if (item.id === sourceCard?.id) {
+        const status: IStatus = target.columnStatus as IStatus;
         return {
-          ...card,
+          ...item,
           status,
         };
-      } else return card;
+      } else return item;
     });
-    const sourceColumn: IColumn = columns.find(
-      (column) => column.id === source.droppableId
-    ) as IColumn;
-    const destinationColumn: IColumn = columns.find(
-      (column) => column.id === destination.droppableId
-    ) as IColumn;
-
-    // moving cards into same column
-
-    if (sourceColumn === destinationColumn) {
-      const newColumnCardsIds = [...destinationColumn.cardsIds];
-
-      newColumnCardsIds.splice(source.index, 1);
-      newColumnCardsIds.splice(destination.index, 0, draggableId);
-
+    
+    if (targetColumn === sourceColumn) {
+      // console.log("same");
+      // console.log(targetColumn);
+      const newColumnCardIds = [...sourceColumn.cardsIds];
+      const sourceCardIndex = newColumnCardIds.findIndex(
+        (item) => item === cardId
+      );
+      const destinationCardIndex = newColumnCardIds.findIndex(
+        (item) => item === target.cardId
+      );
+      newColumnCardIds.splice(sourceCardIndex, 1);
+      newColumnCardIds.splice(destinationCardIndex, 0, cardId);
       const newDestinationColumn: IColumn = {
-        ...destinationColumn,
-        cardsIds: newColumnCardsIds,
+        ...targetColumn,
+        cardsIds: newColumnCardIds,
       };
-      const updatedColumns: IColumn[] = columns.map((column) => {
-        if (column.id === newDestinationColumn.id) return newDestinationColumn;
-        else return column;
+      // console.log(newDestinationColumn)
+      const updateColumns: IColumn[] = columns.map((item) => {
+        if (item.id === newDestinationColumn.id) return newDestinationColumn;
+        else return item;
       });
-
-      dispatch(setColumns(updatedColumns))
-      dispatch(setCards(updatedCards))
-
-      return
+      dispatch(setCards(updatedCards));
+      dispatch(setColumns(updateColumns));
+      return;
     }
 
-    // moving cards from one column to another
-    const sourceCardsIds = [...sourceColumn.cardsIds]
-    sourceCardsIds.splice(source.index,1)
-
-    const newSourceColumn: IColumn = {
-      ...sourceColumn,
-      cardsIds:sourceCardsIds
-    }
-
-    const destinationCardsIds = [...destinationColumn.cardsIds]
-
-    const newDestinationColumn: IColumn = {
-      ...destinationColumn,
-      cardsIds:destinationCardsIds
-    }
-
-    const updatedColumns:IColumn[] = columns.map(column => {
-      if(column.id === newDestinationColumn.id) return newDestinationColumn;
-      if(column.id === newSourceColumn.id) return newSourceColumn;
-      else return column
-    })
-
-    dispatch(setColumns(updatedColumns))
-    dispatch(setCards(updatedCards))
-
+    const sourceCardsId = [...sourceColumn.cardsIds];
+    sourceCardsId.splice()
   };
+
   return (
     <>
       <Container>
@@ -129,24 +119,24 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
           </TitleAndSwitch>
         </Header>
         <StatusesColumnsContainer>
-          <DragDropContext onDragEnd={onDragEnd}>
-            {columns.map((column, index) => {
-              const cardsArray: ICard[] = [];
-              console.log(cardsArray)
-              column.cardsIds.forEach((cardId) => {
-                const foundedCard = cards.find((card) => card.id === cardId);
-                if (foundedCard) cardsArray.push(foundedCard);
-              });
-              return (
-                <Column
-                  cards={cardsArray}
-                  index={index}
-                  status={column.id}
-                  key={column.id}
-                />
-              );
-            })}
-          </DragDropContext>
+          {columns.map((column, index) => {
+            const cardsArray: ICard[] = [];
+
+            column.cardsIds.forEach((cardId) => {
+              const foundedCard = cards.find((card) => card.id === cardId);
+              if (foundedCard) cardsArray.push(foundedCard);
+            });
+            return (
+              <Column
+                cards={cardsArray}
+                index={index}
+                status={column.id}
+                key={column.id}
+                handleDragEnd={handleDragEnd}
+                handleDragEnter={handleDragEnter}
+              />
+            );
+          })}
         </StatusesColumnsContainer>
       </Container>
     </>
