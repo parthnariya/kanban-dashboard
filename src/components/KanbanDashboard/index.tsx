@@ -1,6 +1,7 @@
 import {
   Container,
   Header,
+  SearchAndFilters,
   StatusesColumnsContainer,
   SwitchIcon,
   TitleAndSwitch,
@@ -20,6 +21,7 @@ import IStatus from "../../interfaces/IStatus";
 import IColumn from "../../interfaces/IColumn";
 import { setColumns } from "../../store/slices/column.slice";
 import { setCards } from "../../store/slices/card.slice";
+import SearchInput from "../SearchInput";
 
 interface KanbanDashboardProps {
   toggleTheme: () => void;
@@ -54,8 +56,6 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
     const sourceColumn: IColumn = columns.find(
       (column) => column.id === columnStatus
     ) as IColumn;
-    // console.log(sourceColumn,sourceCard)
-    const targetCard = cards.find((item) => item.id === target?.cardId);
     const targetColumn: IColumn = columns.find(
       (item) => item.id === target?.columnStatus
     ) as IColumn;
@@ -69,7 +69,7 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
         };
       } else return item;
     });
-    
+
     if (targetColumn === sourceColumn) {
       // console.log("same");
       // console.log(targetColumn);
@@ -96,8 +96,33 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
       return;
     }
 
-    const sourceCardsId = [...sourceColumn.cardsIds];
-    sourceCardsId.splice()
+    const sourceCardsIds = [...sourceColumn.cardsIds];
+    const sourceCardIndex = sourceCardsIds.findIndex((item) => item === cardId);
+    sourceCardsIds.splice(sourceCardIndex, 1);
+
+    const newSourceColumn: IColumn = {
+      ...sourceColumn,
+      cardsIds: sourceCardsIds,
+    };
+
+    const targetCardIds = [...targetColumn.cardsIds];
+    const targetCardIndex = targetCardIds.findIndex(
+      (item) => item === target.cardId
+    );
+    targetCardIds.splice(targetCardIndex, 0, cardId);
+    const newTargetColumn: IColumn = {
+      ...targetColumn,
+      cardsIds: targetCardIds,
+    };
+
+    const updatedColumns: IColumn[] = columns.map((item) => {
+      if (item.id === newSourceColumn.id) return newSourceColumn;
+      if (item.id === newTargetColumn.id) return newTargetColumn;
+      else return item;
+    });
+    dispatch(setCards(updatedCards));
+    dispatch(setColumns(updatedColumns));
+    return;
   };
 
   return (
@@ -117,6 +142,9 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
               offColor={colors.switch}
             />
           </TitleAndSwitch>
+          <SearchAndFilters>
+            <SearchInput />
+          </SearchAndFilters>
         </Header>
         <StatusesColumnsContainer>
           {columns.map((column, index) => {

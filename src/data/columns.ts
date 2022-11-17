@@ -1,7 +1,7 @@
 import IColumn from "../interfaces/IColumn";
 import IStatus from "../interfaces/IStatus"
 
-/* const mockColumns: IColumn[] = [
+const mockColumns: IColumn[] = [
   {
     id: IStatus.BACKLOG,
     title: 'Backlog',
@@ -28,32 +28,6 @@ import IStatus from "../interfaces/IStatus"
     cardsIds: ['29065b36-8873-4ccd-8c42-dcff14736650', '74d031c0-59bb-4f4b-9910-71bb1c88c624']
   }
 ]
- */
-const mockColumns: IColumn[] = [
-  {
-    id: IStatus.BACKLOG,
-    title: 'Backlog',
-    cardsIds: ['2','3']
-  },
-  {
-    id: IStatus.TO_DO,
-    title: 'To Do',
-    cardsIds: []
-  },
-  {
-    id: IStatus.DOING,
-    title: 'Doing',
-    cardsIds: ['1']
-  },
-  {
-    id: IStatus.IN_REVIEW,
-    title: 'In Review',
-    cardsIds: ['4']
-  },
-  {
-    id: IStatus.DONE,
-    title: 'Done',
-    cardsIds: []
-  }
-]
+
+
 export default mockColumns;

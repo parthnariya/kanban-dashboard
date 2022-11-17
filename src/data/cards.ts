@@ -2,7 +2,7 @@ import ICard from "../interfaces/ICard";
 import ICategory from "../interfaces/ICategory";
 import IStatus from "../interfaces/IStatus";
 
-/* const mockCards: ICard[] = [
+const mockCards: ICard[] = [
   {
     id: '2fab1909-0b9f-4783-976c-4ffecb805ac5',
     category: ICategory.BUG,
@@ -67,42 +67,8 @@ import IStatus from "../interfaces/IStatus";
     status: IStatus.IN_REVIEW,
     hidden: false
   },
-] */
-
-const mockCards: ICard[] = [
-  {
-    id: '1',
-    category: ICategory.BUG,
-    title: 'Reset password button not working',
-    description: 'The button does not contain any feedback, when you click on it, it does nothing',
-    status: IStatus.DOING,
-    hidden: false
-  },
-  {
-    id: '2',
-    category: ICategory.BUG,
-    title: 'Create clear filters button',
-    description: 'The user can select the filters but they should also be able to clear them without having to reload the page',
-    status: IStatus.BACKLOG,
-    hidden: false
-  },
-  {
-    id: '3',
-    category: ICategory.INFRA,
-    title: 'Set up the staging environment',
-    description: '',
-    status: IStatus.BACKLOG,
-    hidden: false
-  },
-  {
-    id: '4',
-    category: ICategory.DEPLOY,
-    title: 'Send first deploy to prod',
-    description: '',
-    status: IStatus.IN_REVIEW,
-    hidden: false
-  },
-  
 ]
+
+
 
 export default mockCards;
