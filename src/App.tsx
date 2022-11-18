@@ -8,6 +8,7 @@ import darkTheme from "./styles/themes/dark";
 import { ThemeProvider } from "styled-components";
 import { Provider } from "react-redux";
 import store from "./store";
+import { ModalProvider } from "./hooks/useModal";
 function App() {
   const [theme, setTheme] = useState(lightTheme);
 
@@ -18,10 +19,12 @@ function App() {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
+        <ModalProvider>
         <div >
           <GlobalStyles />
           <KanbanDashboard toggleTheme={toggleTheme} />
         </div>
+        </ModalProvider>
       </ThemeProvider>
     </Provider>
   );

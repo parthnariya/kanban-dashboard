@@ -1,18 +1,18 @@
 import {
   Container,
+  FiltersContainer,
   Header,
+  LabelContainer,
   SearchAndFilters,
   StatusesColumnsContainer,
   SwitchIcon,
   TitleAndSwitch,
 } from "./style";
 import Switch from "react-switch";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import SunIcon from "../../assets/sun.png";
 import MoonIcon from "../../assets/moon.png";
-import mockCards from "../../data/cards";
-import mockColumns from "../../data/columns";
 // import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import ICard from "../../interfaces/ICard";
 import Column from "../Column";
@@ -20,8 +20,12 @@ import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
 import IStatus from "../../interfaces/IStatus";
 import IColumn from "../../interfaces/IColumn";
 import { setColumns } from "../../store/slices/column.slice";
-import { setCards } from "../../store/slices/card.slice";
+import { filterCards, setCards } from "../../store/slices/card.slice";
 import SearchInput from "../SearchInput";
+import ICategory from "../../interfaces/ICategory";
+import getBackgroundColor from "../../helpers/getBackGroundColor";
+import { useModal } from "../../hooks/useModal";
+import Modal from "../Modal";
 
 interface KanbanDashboardProps {
   toggleTheme: () => void;
@@ -36,9 +40,14 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
   const theme = useContext(ThemeContext);
 
   const [target, setTarget] = useState<ColumnTargetType>();
+  const [selectedCategory, setSelectedCategory] = useState<ICategory[]>(Object.values(ICategory))
 
   const { cards } = useAppSelector((state) => state.cards);
   const { columns } = useAppSelector((state) => state.columns);
+  const {visible} = useModal() 
+  console.log(visible);
+
+  
 
   const dispatch = useAppDispatch();
   // const cards = mockCards;
@@ -125,6 +134,20 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
     return;
   };
 
+  const handleCategoryCheckbox = (category : ICategory) => {
+    const foundCategory = selectedCategory.find(item => item === category);
+    if(foundCategory){
+      const categoryWithItemRemoved = selectedCategory.filter(item =>item !== category)
+      setSelectedCategory(categoryWithItemRemoved)
+      return
+    }
+    setSelectedCategory([...selectedCategory,category])
+    return
+  }
+
+  useEffect(() => {
+    dispatch(filterCards({categories : selectedCategory}))
+  },[selectedCategory])
   return (
     <>
       <Container>
@@ -144,6 +167,18 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
           </TitleAndSwitch>
           <SearchAndFilters>
             <SearchInput />
+            <FiltersContainer>
+              {Object.values(ICategory).map((item) => (
+                <LabelContainer
+                  color={() => getBackgroundColor(theme, item)}
+                  key={item}
+                  onClick={() => handleCategoryCheckbox(item)}
+                >
+                  <input type="checkbox" name={item} value={item} checked={selectedCategory.includes(item)} onChange={() => handleCategoryCheckbox(item)}/>
+                  <label>{item}</label>
+                </LabelContainer>
+              ))}
+            </FiltersContainer>
           </SearchAndFilters>
         </Header>
         <StatusesColumnsContainer>
@@ -167,6 +202,7 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
           })}
         </StatusesColumnsContainer>
       </Container>
+      <Modal visible={visible}/>
     </>
   );
 };
