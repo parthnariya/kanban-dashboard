@@ -26,6 +26,7 @@ import ICategory from "../../interfaces/ICategory";
 import getBackgroundColor from "../../helpers/getBackGroundColor";
 import { useModal } from "../../hooks/useModal";
 import Modal from "../Modal";
+import AddButton from "../AddButton";
 
 interface KanbanDashboardProps {
   toggleTheme: () => void;
@@ -45,7 +46,7 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
   const { cards } = useAppSelector((state) => state.cards);
   const { columns } = useAppSelector((state) => state.columns);
   const {visible} = useModal() 
-  console.log(visible);
+  // console.log(visible);
 
   
 
@@ -201,6 +202,7 @@ const KanbanDashboard = ({ toggleTheme }: KanbanDashboardProps) => {
             );
           })}
         </StatusesColumnsContainer>
+        <AddButton/>
       </Container>
       <Modal visible={visible}/>
     </>

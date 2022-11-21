@@ -83,6 +83,8 @@ const Modal: React.FC<ModalProps> = ({ visible }) => {
     return;
   };
 
+  if(!visible) return null;
+
   return (
     <Container>
       <ModalContent>
@@ -100,15 +102,15 @@ const Modal: React.FC<ModalProps> = ({ visible }) => {
         <h3>Description</h3>
         <MultilineInput
           aria-multiline
-          value={title}
+          value={description}
           onChange={(e) => setDescription(e.target.value)}
           maxLength={300}
         />
 
         <CategoriesContainer>
-          {Object.values(ICategory).map((item) => {
+          {Object.values(ICategory).map((item,index) => {
             return (
-              <LabelContainer color={() => getBackgroundColor(theme, item)}>
+              <LabelContainer color={() => getBackgroundColor(theme, item)} key={index}>
                 <label>
                   <input
                     type="radio"

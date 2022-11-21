@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 // import { Draggable } from "react-beautiful-dnd";
 import { ThemeContext } from "styled-components";
 import getBackgroundColor from "../../helpers/getBackGroundColor";
+import { useModal } from "../../hooks/useModal";
 import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
 import ICard from "../../interfaces/ICard";
 import IColumn from "../../interfaces/IColumn";
@@ -24,6 +25,7 @@ interface ColumnTargetType {
 const Card: React.FC<CardProps> = ({ card, index,handleDragEnd,handleDragEnter }) => {
   
   const theme = useContext(ThemeContext);
+  const {toggleVisibility} = useModal()
   const [backgroundColor, setBackgroundColor] = useState<string>(
     theme.colors.primary
   );
@@ -37,7 +39,9 @@ const Card: React.FC<CardProps> = ({ card, index,handleDragEnd,handleDragEnter }
 
   return (
     
-        <CardContainer hideCard={card.hidden } draggable onDragEnter={() => handleDragEnter(card.id,card.status)} onDragEnd={() => handleDragEnd(card.id,card.status)}>
+        <CardContainer  
+        onClick={() => toggleVisibility(card)}
+        hideCard={card.hidden } draggable onDragEnter={() => handleDragEnter(card.id,card.status)} onDragEnd={() => handleDragEnd(card.id,card.status)}>
           <CardBorder color={backgroundColor} />
           <h3>{card.title}</h3>
           <CardBottom>

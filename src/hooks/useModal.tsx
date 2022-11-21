@@ -19,6 +19,7 @@ const ModalProvider:React.FC<ModalProviderProps> = ({children}) => {
         if(card) setSelectedCard(card);
         else setSelectedCard(undefined);
         setVisible(!visible)
+        return
     }
     return <ModalContext.Provider value={{visible,selectedCard,toggleVisibility}}>
         {children}
