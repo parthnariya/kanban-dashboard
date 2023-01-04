@@ -24,6 +24,20 @@ export const cardsSlice = createSlice({
       state.searchText = payload;
     },
     addCard: (state, { payload }) => {
+      console.log(payload);
+      fetch("http://localhost:3000/tasks", {
+        method: "POST",
+        body: JSON.stringify({
+          id: payload.id,
+          category: payload.category,
+          title: payload.title,
+          description: payload.description,
+          status: payload.status,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8"
+      }
+      });
       state.cards = [...state.cards, payload];
     },
     updateOneCard: (state, { payload }) => {
@@ -46,24 +60,30 @@ export const cardsSlice = createSlice({
             categories.includes(item.category)
           )
             return { ...item, hidden: false };
-        }else{
-            if(categories.includes(item.category)){
-                return {...item,hidden:false}
-            }
+        } else {
+          if (categories.includes(item.category)) {
+            return { ...item, hidden: false };
+          }
         }
-        return {...item,hidden:true}
+        return { ...item, hidden: true };
       });
-      state.cards = filteredCards
+      state.cards = filteredCards;
     },
-    clearFilter:(state) => {
-        const clearFilteredCards = state.cards.map(item => ({
-            ...item,
-            hidden:false
-        }))
-        state.cards = clearFilteredCards;
-    }
+    clearFilter: (state) => {
+      const clearFilteredCards = state.cards.map((item) => ({
+        ...item,
+        hidden: false,
+      }));
+      state.cards = clearFilteredCards;
+    },
   },
 });
-export const { addCard, setCards, setSearchText, updateOneCard,clearFilter,filterCards } =
-  cardsSlice.actions;
+export const {
+  addCard,
+  setCards,
+  setSearchText,
+  updateOneCard,
+  clearFilter,
+  filterCards,
+} = cardsSlice.actions;
 export default cardsSlice.reducer;
